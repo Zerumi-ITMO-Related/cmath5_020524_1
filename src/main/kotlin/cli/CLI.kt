@@ -22,6 +22,7 @@ import io.github.zerumi.model.Point
 import io.github.zerumi.model.function.SinFunction
 import io.github.zerumi.model.function.SquareRootFunction
 import java.nio.charset.Charset
+import kotlin.system.exitProcess
 
 sealed class LoadConfig(name: String) : OptionGroup(name)
 
@@ -79,19 +80,35 @@ class CLI : CliktCommand() {
     ).int().default(25)
 
     override fun run() {
-        val knownPoints = when (val it = choice) {
-            is FromFile -> {
-                parseFile(it)
-            }
+        val rawKnownPoints : Array<Point>
+        try {
+            rawKnownPoints = when (val it = choice) {
+                is FromFile -> {
+                    parseFile(it)
+                }
 
-            is FromCLI -> {
-                useFullCli(it)
-            }
+                is FromCLI -> {
+                    useFullCli(it)
+                }
 
-            is FromFunction -> {
-                useCLIWithFunction(it)
+                is FromFunction -> {
+                    useCLIWithFunction(it)
+                }
             }
+        } catch (e: Exception) {
+            println("Found invalid input! Input should be stream of decimal numbers with dot as separator")
+            println("Please, try again")
+            exitProcess(2)
         }
+
+        if (rawKnownPoints.map { it.x }.toSet().size != rawKnownPoints.size) {
+            println("Points shouldn't contain equal X arguments!")
+            println("Found ${rawKnownPoints.size} points " +
+                    "with only ${rawKnownPoints.map { it.x }.toSet().size} unique X argument!")
+            exitProcess(1)
+        }
+
+        val knownPoints = rawKnownPoints.sortedBy { it.x }.toTypedArray()
 
         val newtonMethod = NewtonMethodFactory().generateMethod(knownPoints)
 
@@ -106,24 +123,27 @@ class CLI : CliktCommand() {
             }
             drawMatrix(list.map { it.toTypedArray() }.toTypedArray())
         }
-
-        if (method != null) {
-            val factoredMethod = method!!.generateMethod(knownPoints)
-            do {
+        try {
+            if (method != null) {
+                val factoredMethod = method!!.generateMethod(knownPoints)
+                do {
+                    print("Enter point X: ")
+                    val currentX = readln().toDouble()
+                    println("Solution: ${factoredMethod.interpolate(currentX)}")
+                } while (infiniteMode)
+            } else {
                 print("Enter point X: ")
                 val currentX = readln().toDouble()
-                println("Solution: ${factoredMethod.interpolate(currentX)}")
-            } while (infiniteMode)
-        } else {
-            print("Enter point X: ")
-            val currentX = readln().toDouble()
 
-            println("Solution by Lagrange method: ${LagrangeMethod(knownPoints).interpolate(currentX)}")
-            println(
-                "Solution by Newton method: ${
-                    newtonMethod.interpolate(currentX)
-                }"
-            )
+                println("Solution by Lagrange method: ${LagrangeMethod(knownPoints).interpolate(currentX)}")
+                println(
+                    "Solution by Newton method: ${
+                        newtonMethod.interpolate(currentX)
+                    }"
+                )
+            }
+        } catch (e: Exception) {
+            println("Invalid input! Use dot as decimal separator. Example of correct number: 42.42")
         }
 
         println("Graph plot for Newton interpolation:")
