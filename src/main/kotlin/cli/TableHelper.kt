@@ -9,7 +9,7 @@ import com.indvd00m.ascii.render.elements.Table
 fun drawMatrix(matrix: Array<Array<Double>>) {
     val render: IRender = Render()
     val builder = render.newBuilder()
-    builder.width(37).height(7)
+    builder.width(9 * matrix.size).height(3 * matrix.size)
     val table = Table(matrix.size, matrix.size)
     for (i in matrix.indices) {
         for (j in matrix[i].indices) {
