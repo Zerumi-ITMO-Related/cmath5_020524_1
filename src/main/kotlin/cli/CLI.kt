@@ -13,6 +13,7 @@ import com.github.ajalt.clikt.parameters.types.choice
 import com.github.ajalt.clikt.parameters.types.file
 import com.github.ajalt.clikt.parameters.types.int
 import io.github.zerumi.method.LagrangeMethod
+import io.github.zerumi.method.NewtonSimilarDifferenceMethod
 import io.github.zerumi.method.factory.LagrangeMethodFactory
 import io.github.zerumi.method.factory.NewtonDividedDifferenceMethodFactory
 import io.github.zerumi.method.factory.NewtonMethodFactory
@@ -92,6 +93,20 @@ class CLI : CliktCommand() {
             }
         }
 
+        val newtonMethod = NewtonMethodFactory().generateMethod(knownPoints)
+
+        if (newtonMethod is NewtonSimilarDifferenceMethod) {
+            println("Found similar differences. Here's the matrix:")
+            val list = mutableListOf<MutableList<Double>>()
+            for (i in knownPoints.indices) {
+                list.add(mutableListOf())
+            }
+            for ((k, v) in newtonMethod.diffTable) {
+                list[k.first].add(v)
+            }
+            drawMatrix(list.map { it.toTypedArray() }.toTypedArray())
+        }
+
         if (method != null) {
             val factoredMethod = method!!.generateMethod(knownPoints)
             do {
@@ -106,14 +121,14 @@ class CLI : CliktCommand() {
             println("Solution by Lagrange method: ${LagrangeMethod(knownPoints).interpolate(currentX)}")
             println(
                 "Solution by Newton method: ${
-                    NewtonMethodFactory().generateMethod(knownPoints).interpolate(currentX)
+                    newtonMethod.interpolate(currentX)
                 }"
             )
         }
 
         println("Graph plot for Newton interpolation:")
         drawPlot(
-            NewtonMethodFactory().generateMethod(knownPoints),
+            newtonMethod,
             graphPointsCount,
             knownPoints.first().x,
             knownPoints.last().x,

@@ -21,8 +21,10 @@ class NewtonMethodFactory : MethodFactory {
     override fun generateMethod(values: Array<Point>): InterpolationMethod {
         var similarDifference = true
 
+        val firstDiff = abs(values[1].x - values[0].x)
+
         for (i in 1..<values.size) {
-            if (abs(values[i - 1].x - values[i].x) > 1e-4) similarDifference = false
+            if (abs(abs(values[i - 1].x - values[i].x) - firstDiff) > 1e-4) similarDifference = false
         }
 
         return if (similarDifference) NewtonSimilarDifferenceMethod(values)

@@ -1,5 +1,6 @@
 package io.github.zerumi.method
 
+import io.github.zerumi.cli.drawMatrix
 import io.github.zerumi.model.Point
 import kotlin.math.pow
 
@@ -7,7 +8,7 @@ class NewtonSimilarDifferenceMethod(
     private val knownValues: Array<Point>
 ) : InterpolationMethod {
 
-    private val diffTable: MutableMap<Pair<Int, Int>, Double> = mutableMapOf()
+    val diffTable: MutableMap<Pair<Int, Int>, Double> = mutableMapOf()
 
     init {
         for (i in knownValues.indices) {
@@ -22,7 +23,7 @@ class NewtonSimilarDifferenceMethod(
         }
     }
 
-    private fun factorial(n: Int) : Int {
+    private fun factorial(n: Int): Int {
         if (n == 1) return 1
         return n * factorial(n - 1)
     }
@@ -37,7 +38,7 @@ class NewtonSimilarDifferenceMethod(
         return result / factorial(n)
     }
 
-    private fun interpolateForward(t: Double, n: Int) : Double {
+    private fun interpolateForward(t: Double, n: Int): Double {
         var result = diffTable[Pair(0, n)]!!
         for (i in 1..<knownValues.size - n) {
             result += diffTable[Pair(i, n)]!! * calculateTForward(t, i)
@@ -56,7 +57,7 @@ class NewtonSimilarDifferenceMethod(
         return result / factorial(n)
     }
 
-    private fun interpolateBackward(t: Double, n: Int) : Double {
+    private fun interpolateBackward(t: Double, n: Int): Double {
         var result = diffTable[Pair(0, n)]!!
         for (i in 1..n) {
             result += diffTable[Pair(i, n - i)]!! * calculateTBackward(t, i)
@@ -64,7 +65,7 @@ class NewtonSimilarDifferenceMethod(
         return result
     }
 
-    private fun genericInterpolation(x: Double, h: Double) : Double {
+    private fun genericInterpolation(x: Double, h: Double): Double {
         var result = diffTable[Pair(0, 0)]!!
 
         for (i in 1..<knownValues.size) {
