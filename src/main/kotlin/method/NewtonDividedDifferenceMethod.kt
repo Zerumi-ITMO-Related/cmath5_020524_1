@@ -13,7 +13,7 @@ class NewtonDividedDifferenceMethod(
 
     init {
         var start = 0
-        window = generateSequence { (start++).takeIf { it < knownValues.size } }.toList().toTypedArray()
+        window = generateSequence { start++.takeIf { it < knownValues.size } }.toList().toTypedArray()
         for (i in knownValues.indices) {
             diffTable[Window(arrayOf(i))] = knownValues[i].y
         }
@@ -53,7 +53,7 @@ class NewtonDividedDifferenceMethod(
             var currentResult = diffTable[window]!!
 
             for (j in 0 until i) {
-                currentResult *= (x - knownValues[j].x)
+                currentResult *= x - knownValues[j].x
             }
 
             result += currentResult

@@ -14,10 +14,10 @@ class LagrangeMethod(
             for (j in knownValues.indices) {
                 if (i == j) continue
 
-                divider *= (x - knownValues[j].x)
-                divisor *= (knownValues[i].x - knownValues[j].x)
+                divider *= x - knownValues[j].x
+                divisor *= knownValues[i].x - knownValues[j].x
             }
-            sum += (divider / divisor) * knownValues[i].y
+            sum += divider / divisor * knownValues[i].y
         }
 
         return sum

@@ -1,6 +1,5 @@
 package io.github.zerumi.method
 
-import io.github.zerumi.cli.drawMatrix
 import io.github.zerumi.model.Point
 import kotlin.math.pow
 
@@ -32,7 +31,7 @@ class NewtonSimilarDifferenceMethod(
         var result = 1.0
 
         for (i in 0..<n) {
-            result *= (t - i)
+            result *= t - i
         }
 
         return result / factorial(n)
@@ -51,7 +50,7 @@ class NewtonSimilarDifferenceMethod(
         var result = 1.0
 
         for (i in 0..<n) {
-            result *= (t + i)
+            result *= t + i
         }
 
         return result / factorial(n)
@@ -71,7 +70,7 @@ class NewtonSimilarDifferenceMethod(
         for (i in 1..<knownValues.size) {
             var element = diffTable[Pair(i, 0)]!!
             for (j in 0..<i) {
-                element *= (x - knownValues[j].x)
+                element *= x - knownValues[j].x
             }
             element /= h.pow(i)
             element /= factorial(i)
