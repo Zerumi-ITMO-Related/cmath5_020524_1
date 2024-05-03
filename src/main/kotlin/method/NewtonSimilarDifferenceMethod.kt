@@ -1,6 +1,7 @@
 package io.github.zerumi.method
 
 import io.github.zerumi.model.Point
+import kotlin.math.pow
 
 class NewtonSimilarDifferenceMethod(
     private val knownValues: Array<Point>
@@ -63,6 +64,23 @@ class NewtonSimilarDifferenceMethod(
         return result
     }
 
+    private fun genericInterpolation(x: Double, h: Double) : Double {
+        var result = diffTable[Pair(0, 0)]!!
+
+        for (i in 1..<knownValues.size) {
+            var element = diffTable[Pair(i, 0)]!!
+            for (j in 0..<i) {
+                element *= (x - knownValues[j].x)
+            }
+            element /= h.pow(i)
+            element /= factorial(i)
+
+            result += element
+        }
+
+        return result
+    }
+
     override fun interpolate(x: Double): Double {
         val leftBorder = knownValues.first().x
         val rightBorder = knownValues.last().x
@@ -73,9 +91,11 @@ class NewtonSimilarDifferenceMethod(
         var n = ((x - knownValues.first().x + h) / h).toInt() - 1
         if (x > leftBorder + halvedSize) n++
 
+        if (n < 0 || n >= knownValues.size) return genericInterpolation(x, h)
+
         val t = (x - knownValues[n].x) / h
 
-        return if (x < leftBorder + halvedSize) interpolateForward(t, n)
+        return if (x <= leftBorder + halvedSize) interpolateForward(t, n)
         else interpolateBackward(t, n)
     }
 }
